@@ -1,0 +1,7 @@
+# nixpacks.toml
+
+[phases.setup]
+nixPkgs = ["...", "static-web-server"]
+
+[start]
+cmd = "static-web-server --root . --port $PORT"

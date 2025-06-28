@@ -1,0 +1,15 @@
+172.28.240.1 - - [28/Jun/2025 12:37:44] "GET /index_premium.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 12:37:47] code 404, message File not found
+172.28.240.1 - - [28/Jun/2025 12:37:47] "GET /favicon.ico HTTP/1.1" 404 -
+172.28.240.1 - - [28/Jun/2025 12:38:38] "GET /index.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 12:38:57] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 19:57:34] "GET /index_ultimate.html HTTP/1.1" 304 -
+172.28.240.1 - - [28/Jun/2025 20:27:34] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:40:52] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:41:41] "GET /index.html HTTP/1.1" 304 -
+172.28.240.1 - - [28/Jun/2025 20:42:03] "GET /index_ultimate.html HTTP/1.1" 304 -
+172.28.240.1 - - [28/Jun/2025 20:43:49] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:44:32] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:45:41] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:47:31] "GET /index_ultimate.html HTTP/1.1" 200 -
+172.28.240.1 - - [28/Jun/2025 20:48:11] "GET /index_ultimate.html HTTP/1.1" 200 -

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNP Fansite - Future Luxury</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #050505;
+            --dark-gray: #111111;
+            --medium-gray: #1a1a1a;
+            --light-gray: #333333;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-light: #d4d4d8;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: var(--primary-black);
+            color: var(--text-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Three.js Background Container */
+        #bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Glassmorphism Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(30px);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-white);
+            text-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-white) 0%, var(--accent-purple) 50%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            opacity: 0;
+        }
+
+        .typewriter {
+            border-right: 3px solid var(--accent-blue);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { border-color: var(--accent-blue); }
+            51%, 100% { border-color: transparent; }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.7;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-text {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            letter-spacing: 1px;
+        }
+
+        .scroll-arrow {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-blue);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            background: var(--primary-black);
+        }
+
+        /* Features Section */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px) translateZ(5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1.5rem;
+            color: var(--accent-blue);
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-description {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-link {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            border-radius: 50px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .feature-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .feature-link:hover::before {
+            left: 100%;
+        }
+
+        .feature-link:hover {
+            color: var(--text-white);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+
+        .feature-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--light-gray);
+            color: var(--text-gray);
+        }
+
+        .feature-link.disabled:hover {
+            color: var(--text-gray);
+            border-color: var(--light-gray);
+            box-shadow: none;
+        }
+
+        .development-note {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-top: 0.5rem;
+            opacity: 0.7;
+        }
+
+        /* Donation Section */
+        .donation-section {
+            background: linear-gradient(135deg, var(--secondary-black) 0%, var(--dark-gray) 100%);
+            padding: 6rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .donation-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-white);
+            letter-spacing: 2px;
+        }
+
+        .donation-message {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .support-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border: none;
+            border-radius: 50px;
+            color: var(--text-white);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .support-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .support-button:hover::before {
+            left: 100%;
+        }
+
+        .support-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-black);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--glow-blue);
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .disclaimer {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+                letter-spacing: 1px;
+            }
+
+            .section {
+                padding: 4rem 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .feature-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .donation-section {
+                padding: 4rem 1rem;
+            }
+        }
+
+        /* Fade-in animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Background -->
+    <div id="bg-container"></div>
+
+    <!-- Glassmorphism Header -->
+    <header class="header" id="header">
+        <div class="nav-container">
+            <div class="logo">CNP Trading Card Game Fansite</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#features">オンライン対戦</a></li>
+                    <li><a href="#features">デッキビルダー</a></li>
+                    <li><a href="#features">対戦履歴</a></li>
+                    <li><a href="#features">ルール</a></li>
+                    <li><a href="#features">クイズ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title typewriter" id="hero-title"></h1>
+        </div>
+        <div class="scroll-indicator">
+            <span class="scroll-text">SCROLL</span>
+            <i data-lucide="chevron-down" class="scroll-arrow"></i>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Features Section -->
+        <section class="section" id="features">
+            <h2 class="section-title fade-in">BATTLEFIELD GATES</h2>
+            <div class="features-grid">
+                <!-- Online Battle -->
+                <div class="feature-card fade-in">
+                    <i data-lucide="swords" class="feature-icon"></i>
+                    <h3 class="feature-title">決戦の舞台へ</h3>
+                    <p class="feature-description">全国のプレイヤーとリアルタイムでバトル。<br>真の実力が試される場所。</p>
+                    <a href="https://cnptcg-frontend-020-production.up.railway.app" class="feature-link" target="_blank">ENTER BATTLE</a>
+                </div>
+
+                <!-- Deck Builder -->
+                <div class="feature-card fade-in">
+                    <i data-lucide="layers" class="feature-icon"></i>
+                    <h3 class="feature-title">最強の戦略を構築せよ</h3>
+                    <p class="feature-description">多彩なカードの中で、<br>究極のデッキを創造せよ。</p>
+                    <a href="https://cnptcg-deck-003-01.vercel.app/deck-builder" class="feature-link" target="_blank">BUILD DECK</a>
+                </div>
+
+                <!-- Battle History -->
+                <div class="feature-card fade-in">
+                    <i data-lucide="scroll-text" class="feature-icon"></i>
+                    <h3 class="feature-title">激闘の軌跡を辿る</h3>
+                    <p class="feature-description">過去の戦いを振り返り、<br>さらなる高みを目指せ。</p>
+                    <a href="#" class="feature-link disabled">VIEW HISTORY</a>
+                    <div class="development-note">現在開発中です</div>
+                </div>
+
+                <!-- Rules -->
+                <div class="feature-card fade-in">
+                    <i data-lucide="shield" class="feature-icon"></i>
+                    <h3 class="feature-title">勝利の法則を学ぶ</h3>
+                    <p class="feature-description">基本から応用まで、<br>勝利への道筋を理解せよ。</p>
+                    <a href="#" class="feature-link disabled">LEARN RULES</a>
+                    <div class="development-note">準備中</div>
+                </div>
+
+                <!-- Quiz -->
+                <div class="feature-card fade-in">
+                    <i data-lucide="lightbulb" class="feature-icon"></i>
+                    <h3 class="feature-title">知識は力なり</h3>
+                    <p class="feature-description">CNPトレカの世界への理解を深める<br>知識の試練。</p>
+                    <a href="https://cnptcg-deck-003-01.vercel.app/quiz" class="feature-link" target="_blank">START QUIZ</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Donation Section -->
+        <section class="donation-section">
+            <h2 class="donation-title">Created by 図解師★ウルフ</h2>
+            <p class="donation-message">
+                このサイトを訪れていただき、本当にありがとうございます。<br>
+                私がCNPトレカの一ファンとして、一人でも多くの方と対戦したくて、<br>
+                この場所を開発しました。<br>
+                もしみなさんにも一緒に楽しんでもらえたら、何より嬉しいです。<br><br>
+                修正やバグがあれば、以下の連絡先から遠慮なくご連絡下さい。<br>
+                引き続きCNPトレカ及び当サイトを一緒に応援して頂けたら、<br>
+                これ以上の幸せはありません。
+            </p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://x.com/Diagram_Wolf" class="social-link" target="_blank">
+                    <i data-lucide="twitter"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i data-lucide="message-circle"></i>
+                </a>
+                <a href="mailto:diagram.wolf@gmail.com" class="social-link">
+                    <i data-lucide="mail"></i>
+                </a>
+            </div>
+            <div class="copyright">© 2025 図解師★ウルフ. All rights reserved.</div>
+            <div class="disclaimer">このサイトは非公式ファンサイトであり、関係各社とは一切関係ありません。</div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Three.js Background Animation
+        let scene, camera, renderer, particles;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 1);
+            document.getElementById('bg-container').appendChild(renderer.domElement);
+
+            // Create particle system
+            const particleCount = 1000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = (Math.random() - 0.5) * 100;
+                positions[i + 2] = (Math.random() - 0.5) * 100;
+
+                // Purple to blue gradient colors
+                const t = Math.random();
+                colors[i] = 0.5 + t * 0.2;     // Red
+                colors[i + 1] = 0.3 + t * 0.5; // Green
+                colors[i + 2] = 0.9;           // Blue
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 2,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            camera.position.z = 30;
+        }
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+
+            particles.rotation.x += 0.0005;
+            particles.rotation.y += 0.001;
+
+            // Wave animation
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] += Math.sin(Date.now() * 0.001 + positions[i] * 0.01) * 0.01;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+
+        // Typewriter Animation
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.style.opacity = '1';
+            element.innerHTML = ''; // Clear content
+            
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) === '\n') {
+                        element.innerHTML += '<br>';
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                    }
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    // Remove typewriter cursor after completion
+                    setTimeout(() => {
+                        element.classList.remove('typewriter');
+                    }, 1000);
+                }
+            }
+            type();
+        }
+
+        // Scroll Animations
+        function initScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in, .section-title, .feature-card').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Header scroll effect
+        function initHeaderEffects() {
+            const header = document.getElementById('header');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        }
+
+        // Smooth scrolling for navigation
+        function initSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Window resize handler
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Three.js
+            initThreeJS();
+            animateParticles();
+
+            // Initialize animations and effects
+            initScrollAnimations();
+            initHeaderEffects();
+            initSmoothScrolling();
+
+            // Start typewriter animation
+            const heroTitle = document.getElementById('hero-title');
+            const titleText = '最強の証明は、\nこの場所で。';
+            setTimeout(() => {
+                typeWriter(heroTitle, titleText, 150);
+            }, 1000);
+
+            // Window resize listener
+            window.addEventListener('resize', onWindowResize);
+        });
+
+        // Disable Three.js on mobile for performance
+        if (window.innerWidth <= 768) {
+            document.getElementById('bg-container').style.display = 'none';
+            document.body.style.background = 'linear-gradient(135deg, #000000 0%, #111111 100%)';
+        }
+    </script>
+</body>
+</html>
