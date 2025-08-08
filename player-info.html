@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プレイヤー情報 - CNP TCG Fansite</title>
+    <meta name="description" content="CNP Trading Card Game プレイヤー情報・NOTE記事">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #050505;
+            --dark-gray: #111111;
+            --medium-gray: #1a1a1a;
+            --light-gray: #333333;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-light: #d4d4d8;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--dark-gray) 100%);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: var(--text-white);
+            text-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .back-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 120px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .description {
+            text-align: center;
+            color: var(--text-gray);
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Note Cards Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .note-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .note-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+        }
+
+        .note-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .note-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-white);
+            flex-shrink: 0;
+        }
+
+        .note-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .note-author {
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .note-description {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+            position: relative;
+            z-index: 2;
+        }
+
+        .note-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            border-radius: 50px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .note-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .note-link:hover::before {
+            left: 100%;
+        }
+
+        .note-link:hover {
+            color: var(--text-white);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+
+        .external-link-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-black);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .notes-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .note-card {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">CNP Trading Card Game Fansite</a>
+            <a href="index.html" class="back-button">
+                <i data-lucide="arrow-left" class="back-icon"></i>
+                ホームに戻る
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="page-title">仲間との絆が力となる</h1>
+            <div class="description">
+                プレイヤー同士の情報共有で共に成長の道を歩もう。<br>
+                CNP TCGコミュニティの有志の方々が投稿された貴重な情報をまとめています。
+            </div>
+
+            <div class="notes-grid">
+                <!-- Note 1 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">CNP TCG戦略ガイド①</div>
+                            <div class="note-author">by ぽんたまるさん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        CNP TCGの基本戦略や初心者向けのデッキ構築について詳しく解説されています。カードの効果的な使い方やコンボについても学べます。
+                    </div>
+                    <a href="https://note.com/pontamaru_18/n/n9114c7063f40" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Note 2 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">TCG攻略メモ</div>
+                            <div class="note-author">by 沖火勇那人さん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        実戦経験に基づいたTCG攻略のメモです。対戦での立ち回りやメタゲームについて実践的なアドバイスが記載されています。
+                    </div>
+                    <a href="https://note.com/okibyiunahito/n/nf53337f64861" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Note 3 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">デッキ分析レポート</div>
+                            <div class="note-author">by Reyさん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        現環境のデッキタイプを詳細に分析し、それぞれの特徴と対策について解説。メタゲームの動向も把握できます。
+                    </div>
+                    <a href="https://note.com/rey_mtg/n/n320f5b800225" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Note 4 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">CNP TCG戦略ガイド②</div>
+                            <div class="note-author">by ぽんたまるさん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        前回に続く戦略ガイドの第2弾。より上級者向けの戦術やデッキビルディングの応用テクニックについて解説されています。
+                    </div>
+                    <a href="https://note.com/pontamaru_18/n/n8e733c0b3522" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Note 5 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">プレイング考察</div>
+                            <div class="note-author">by ystky1104さん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        実際のプレイシーンでの判断基準や読み合いについて深く考察。上達のためのマインドセットも学べる内容です。
+                    </div>
+                    <a href="https://note.com/ystky1104/n/nf50dbafe27f4" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Note 6 -->
+                <div class="note-card">
+                    <div class="note-header">
+                        <div class="note-icon">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div>
+                            <div class="note-title">環境分析レポート</div>
+                            <div class="note-author">by souseiさん</div>
+                        </div>
+                    </div>
+                    <div class="note-description">
+                        現在の競技環境を詳しく分析し、今後の環境変化予想も含めた包括的なレポート。競技プレイヤー必読の内容です。
+                    </div>
+                    <a href="https://note.com/sousei/n/n42be19a4d3b2" class="note-link" target="_blank">
+                        NOTE記事を読む
+                        <i data-lucide="external-link" class="external-link-icon"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>このページの情報は各著者の許可を得て掲載しています。</div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

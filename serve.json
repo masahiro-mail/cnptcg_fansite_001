@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/player-info", "destination": "/player-info.html" },
+    { "source": "/x-posts", "destination": "/x-posts.html" },
+    { "source": "/deck-collection", "destination": "/deck-collection.html" }
+  ]
+}
