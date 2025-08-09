@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNP TCG クイズ | CNP Trading Card Game Fansite</title>
+    <meta name="description" content="CNP Trading Card Game クイズで知識を深めよう">
+    <meta property="og:title" content="CNP TCG クイズ | CNP Trading Card Game Fansite">
+    <meta property="og:description" content="CNP Trading Card Game クイズで知識を深めよう">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CNP TCG クイズ | CNP Trading Card Game Fansite">
+    <meta name="twitter:description" content="CNP Trading Card Game クイズで知識を深めよう">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #050505;
+            --dark-gray: #111111;
+            --medium-gray: #1a1a1a;
+            --light-gray: #333333;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-light: #d4d4d8;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+            --glow-green: rgba(16, 185, 129, 0.3);
+            --glow-red: rgba(239, 68, 68, 0.3);
+            --glow-yellow: rgba(245, 158, 11, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: var(--primary-black);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Three.js Background */
+        #bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .back-button:hover {
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -10px;
+            right: -10px;
+            bottom: -5px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-button:hover::before {
+            opacity: 1;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .start-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+            opacity: 0.03;
+            z-index: -1;
+        }
+
+        .quiz-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-white) 0%, var(--accent-purple) 50%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px var(--glow-purple); }
+            100% { text-shadow: 0 0 30px var(--glow-blue); }
+        }
+
+        .quiz-subtitle {
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .quiz-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .quiz-icon {
+            width: 60px;
+            height: 60px;
+            color: var(--accent-blue);
+            animation: floatIcon 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px var(--glow-blue));
+        }
+
+        .quiz-icon:nth-child(2) {
+            animation-delay: -1s;
+            color: var(--accent-purple);
+            filter: drop-shadow(0 0 10px var(--glow-purple));
+        }
+
+        .quiz-icon:nth-child(3) {
+            animation-delay: -2s;
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.3));
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .quiz-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 25px var(--glow-blue);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-blue);
+            flex-shrink: 0;
+        }
+
+        .start-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border: none;
+            border-radius: 50px;
+            color: var(--text-white);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .start-button:hover::before {
+            left: 100%;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px var(--glow-blue);
+        }
+
+        /* Quiz Screen */
+        .quiz-header {
+            margin-bottom: 3rem;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--medium-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            width: 0%;
+            transition: width 0.8s ease;
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-blue);
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .question-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .question-card:hover::before {
+            opacity: 0.02;
+        }
+
+        .question-number {
+            color: var(--accent-blue);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            color: var(--text-white);
+            position: relative;
+            z-index: 2;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .option-button {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: var(--text-white);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .option-button:hover::before {
+            left: 100%;
+        }
+
+        .option-button:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .option-button.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+
+        .option-button.correct {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .option-button.incorrect {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: 0 0 20px var(--glow-red);
+        }
+
+        .option-button:disabled {
+            cursor: not-allowed;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .option-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .option-button.correct .option-icon,
+        .option-button.incorrect .option-icon {
+            opacity: 1;
+        }
+
+        .option-button.correct .option-icon {
+            color: var(--accent-green);
+        }
+
+        .option-button.incorrect .option-icon {
+            color: var(--accent-red);
+        }
+
+        /* Explanation */
+        .explanation {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .explanation.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explanation-text {
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Control Buttons */
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: var(--text-white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--glow-blue);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-white);
+            box-shadow: 0 0 15px var(--glow-blue);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result-screen.visible {
+            display: block;
+            animation: resultAppear 0.8s ease-out;
+        }
+
+        @keyframes resultAppear {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .result-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .result-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            color: var(--text-white);
+            letter-spacing: 2px;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: scoreGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes scoreGlow {
+            0% { filter: drop-shadow(0 0 10px var(--glow-purple)); }
+            100% { filter: drop-shadow(0 0 20px var(--glow-blue)); }
+        }
+
+        .result-message {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+            gap: 2rem;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--glass-border);
+            border-top: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            .start-screen,
+            .question-card,
+            .result-screen {
+                padding: 2rem 1.5rem;
+                border-radius: 20px;
+            }
+
+            .quiz-title {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .quiz-features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .feature-item {
+                padding: 1rem;
+            }
+
+            .question-text {
+                font-size: 1.2rem;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            .quiz-stats {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Background -->
+    <div id="bg-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">CNP TCG クイズ</div>
+            <a href="index.html" class="back-button">
+                <i data-lucide="arrow-left"></i>
+                ホームに戻る
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="quiz-container">
+            <!-- Loading Screen -->
+            <div id="loadingScreen" class="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">クイズを準備中...</div>
+            </div>
+
+            <!-- Start Screen -->
+            <div id="startScreen" class="start-screen" style="display: none;">
+                <h1 class="quiz-title">知識は力なり</h1>
+                <p class="quiz-subtitle">CNP Trading Card Gameの世界への理解を深める知識の試練</p>
+                
+                <div class="quiz-icons">
+                    <i data-lucide="trophy" class="quiz-icon"></i>
+                    <i data-lucide="brain" class="quiz-icon"></i>
+                    <i data-lucide="award" class="quiz-icon"></i>
+                </div>
+
+                <div class="quiz-features">
+                    <div class="feature-item">
+                        <i data-lucide="help-circle" class="feature-icon"></i>
+                        <span>全10問のクイズ</span>
+                    </div>
+                    <div class="feature-item">
+                        <i data-lucide="clock" class="feature-icon"></i>
+                        <span>制限時間なし</span>
+                    </div>
+                    <div class="feature-item">
+                        <i data-lucide="target" class="feature-icon"></i>
+                        <span>詳細な解説付き</span>
+                    </div>
+                    <div class="feature-item">
+                        <i data-lucide="refresh-cw" class="feature-icon"></i>
+                        <span>何度でも挑戦可能</span>
+                    </div>
+                </div>
+
+                <button class="start-button" onclick="startQuiz()">
+                    <i data-lucide="play"></i>
+                    クイズを開始
+                </button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" style="display: none;">
+                <div class="quiz-header">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <div class="stat-item">
+                                <i data-lucide="help-circle" class="stat-icon"></i>
+                                <span id="questionCounter">1 / 10</span>
+                            </div>
+                            <div class="stat-item">
+                                <i data-lucide="check-circle" class="stat-icon"></i>
+                                <span id="correctCount">正解: 0</span>
+                            </div>
+                            <div class="stat-item">
+                                <i data-lucide="percent" class="stat-icon"></i>
+                                <span id="accuracyRate">正解率: 0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card" id="questionCard">
+                    <div class="question-number" id="questionNumber">問題 1</div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options-grid" id="optionsGrid"></div>
+                    
+                    <div class="explanation" id="explanation" style="display: none;">
+                        <div class="explanation-title">
+                            <i data-lucide="lightbulb"></i>
+                            解説
+                        </div>
+                        <div class="explanation-text" id="explanationText"></div>
+                    </div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>
+                        <i data-lucide="chevron-left"></i>
+                        前の問題
+                    </button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>
+                        次の問題
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="resultScreen" class="result-screen">
+                <h2 class="result-title">クイズ完了！</h2>
+                <div class="result-score" id="finalScore"></div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="restartQuiz()">
+                        <i data-lucide="refresh-cw"></i>
+                        もう一度挑戦
+                    </button>
+                    <a href="index.html" class="btn btn-secondary">
+                        <i data-lucide="home"></i>
+                        ホームに戻る
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Three.js Background Animation (similar to index.html)
+        let scene, camera, renderer, particles;
+
+        function initThreeJS() {
+            if (window.innerWidth <= 768) return; // Skip on mobile
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 1);
+            document.getElementById('bg-container').appendChild(renderer.domElement);
+
+            // Create particle system
+            const particleCount = 800;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = (Math.random() - 0.5) * 100;
+                positions[i + 2] = (Math.random() - 0.5) * 100;
+
+                const t = Math.random();
+                colors[i] = 0.5 + t * 0.2;
+                colors[i + 1] = 0.3 + t * 0.5;
+                colors[i + 2] = 0.9;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 2,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            camera.position.z = 30;
+            animateParticles();
+        }
+
+        function animateParticles() {
+            if (!particles) return;
+            
+            requestAnimationFrame(animateParticles);
+
+            particles.rotation.x += 0.0005;
+            particles.rotation.y += 0.001;
+
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] += Math.sin(Date.now() * 0.001 + positions[i] * 0.01) * 0.01;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+
+        // Quiz Data (combining existing and detailed questions)
+        const quizQuestions = [
+            // Basic Rule Questions
+            {
+                question: "CNPトレカの基本的なゲーム形式は何ですか？",
+                options: ["1対1のボードゲーム", "1対1のターン制カードゲーム", "2対2のチームバトル", "3人以上の乱戦形式"],
+                correct: 1,
+                explanation: "CNPトレカは1対1のターン制カードゲームです。"
+            },
+            {
+                question: "CNPトレカの基本的な勝利条件は何ですか？",
+                options: ["相手のメインデッキを0枚にする", "相手のレイキデッキを0枚にする", "相手のゲージエリアのカードを全て0枚にする", "相手のゲージをゼロにして2つの拠点を制圧する"],
+                correct: 3,
+                explanation: "CNPトレカでは相手のゲージをゼロにして2つの拠点を制圧することで勝利となります。"
+            },
+            {
+                question: "メインデッキのカード枚数は何枚ですか？",
+                options: ["40枚", "45枚", "50枚", "60枚"],
+                correct: 2,
+                explanation: "CNPトレカのメインデッキは50枚で構成されます。"
+            },
+            {
+                question: "レイキデッキのカード枚数は何枚ですか？",
+                options: ["10枚", "15枚", "20枚", "25枚"],
+                correct: 1,
+                explanation: "レイキデッキは15枚で構成されます。"
+            },
+            {
+                question: "メインデッキに同じカードは何枚まで入れることができますか？",
+                options: ["1枚", "2枚", "3枚", "4枚"],
+                correct: 3,
+                explanation: "同じカードはメインデッキに最大4枚まで入れることができます。"
+            },
+            {
+                question: "ゲーム開始時、メインデッキから引く最初の手札の枚数は何枚ですか？",
+                options: ["3枚", "4枚", "5枚", "6枚"],
+                correct: 2,
+                explanation: "ゲーム開始時の手札は5枚です。"
+            },
+            {
+                question: "ゲーム開始時、ゲージエリアに裏向きで配置されるカードの総数は何枚ですか？",
+                options: ["3枚", "4枚", "5枚", "6枚"],
+                correct: 3,
+                explanation: "ゲーム開始時、各拠点に2枚ずつ、合計6枚のゲージが配置されます。"
+            },
+            {
+                question: "先攻の最初のターンにドローフェイズでカードを引くことはできますか？",
+                options: ["はい、できます。", "いいえ、引けません。", "レイキの枚数に応じて引けます。", "任意で引くか引かないか選べます。"],
+                correct: 1,
+                explanation: "先攻の1ターン目はドローフェイズでカードを引けません。"
+            },
+            {
+                question: "手札に持てるカードの枚数に上限はありますか？",
+                options: ["はい、7枚です。", "はい、10枚です。", "いいえ、ありません。", "はい、レイキの枚数に依存します。"],
+                correct: 2,
+                explanation: "CNPトレカでは手札の上限枚数はありません。"
+            },
+            {
+                question: "使用したイベントカードは、効果を発揮したあとどうなりますか？",
+                options: ["デッキに戻る", "手札に戻る", "トラッシュに置かれる", "レイキエリアに置かれる"],
+                correct: 2,
+                explanation: "使用したイベントカードは効果発揮後にトラッシュに置かれます。"
+            },
+            // Deck Strategy Questions
+            {
+                question: "赤デッキの主な戦術は？",
+                options: ["大型ユニットを展開する", "相手ユニットを退場させる", "速攻で仕掛ける", "イベントで妨害する"],
+                correct: 2,
+                explanation: "赤デッキの主な戦術は速攻で仕掛けることです。"
+            },
+            {
+                question: "青デッキの主な特徴は？",
+                options: ["レイキを加速させる", "相手のユニットを退場させる", "ゲージバーンを持つ", "手札を破棄させる"],
+                correct: 1,
+                explanation: "青デッキの主な特徴は相手のユニットを退場させることです。"
+            },
+            {
+                question: "黄色デッキでよく使うカードの種類は？",
+                options: ["ユニットカード", "サポーターカード", "イベントカード", "レイキカード"],
+                correct: 2,
+                explanation: "黄色デッキではイベントカードがよく使われます。"
+            },
+            {
+                question: "体験用デッキのうち、レイキ加速に特化し、高コストの強力なユニットを早期に展開することを目指す色は何ですか？",
+                options: ["赤デッキ", "青デッキ", "黄デッキ", "緑デッキ"],
+                correct: 3,
+                explanation: "緑デッキはレイキ加速に特化し、高コストユニットの早期展開を目指します。"
+            },
+            {
+                question: "混色デッキのリスクとして高いのは？",
+                options: ["デッキ切れを起こしやすい", "大型ユニットを展開しにくい", "レイキ事故", "手札が枯渇しやすい"],
+                correct: 2,
+                explanation: "混色デッキではレイキ事故のリスクが高くなります。"
+            },
+            // Combat and Battle System
+            {
+                question: "カードのアクティブ状態とレスト状態について、正しい説明はどれですか？",
+                options: ["アクティブは横向き、レストは縦向き", "アクティブは縦向き、レストは横向き", "アクティブはカードが使用済み、レストは使用可能", "アクティブとレストはランダムに決定される"],
+                correct: 1,
+                explanation: "アクティブは縦向き、レストは横向きの状態です。"
+            },
+            {
+                question: "「助太刀」を使用できるタイミングはいつですか？",
+                options: ["メインフェイズ中", "相手のターン開始時", "自分のユニットが相手のユニットとバトルしているコンバットタイミング中", "ターンエンド時"],
+                correct: 2,
+                explanation: "「助太刀」は自分のユニットがバトルしているコンバットタイミング中に使用できます。"
+            },
+            {
+                question: "「助太刀」を使用するとき、そのカードのコストを支払う必要はありますか？",
+                options: ["はい、必ず支払います。", "はい、ただし通常の半分です。", "いいえ、ありません。", "レイキが足りない場合のみ支払います。"],
+                correct: 2,
+                explanation: "「助太刀」使用時にコストを支払う必要はありません。"
+            },
+            {
+                question: "ユニット同士のバトルでBPを比べるとき、バトルしているユニット同士のBPが同じだった場合、どうなりますか？",
+                options: ["お互いのユニットが退場します。", "アタックされたユニットだけが退場します。", "両方のユニットが場に残ります。", "ターンプレイヤーが任意でどちらかのユニットを退場させます。"],
+                correct: 0,
+                explanation: "BPが同じ場合、お互いのユニットが退場します。"
+            },
+            {
+                question: "一度に2体以上のユニットでアタックすることはできますか？",
+                options: ["はい、できます。", "はい、同じ拠点であれば可能です。", "いいえ、できません。アタックは1体ずつでしかできません。", "特定のイベントカードを使用すれば可能です。"],
+                correct: 2,
+                explanation: "CNPトレカではアタックは1体ずつしかできません。"
+            },
+            // Special Abilities
+            {
+                question: "≪奪取≫とはどんな効果ですか？",
+                options: ["このユニットがアタックで相手のユニットを手札に戻した時、相手のゲージ1枚を減らす効果。", "このユニットがアタックで相手のユニットを退場させた時、自分のレイキを1枚追加する効果。", "《奪取》を持っているユニットが、アタックで相手の制圧中のユニットを退場させたとき、その拠点のゲージ1枚を減らす効果。", "このユニットがアタックで相手のユニットを退場させた時、相手の手札を1枚捨てる効果。"],
+                correct: 2,
+                explanation: "《奪取》は、アタックで相手の制圧中のユニットを退場させたとき、その拠点のゲージ1枚を減らす効果です。"
+            },
+            {
+                question: "《ゲージバーン》とはどんな効果ですか？",
+                options: ["《ゲージバーン》を持つユニットが減らす制圧ゲージは、手札に加わる代わりにデッキの下に戻されます。", "《ゲージバーン》を持つユニットが減らす制圧ゲージは、手札に加わる代わりにレイキエリアに置かれます。", "《ゲージバーン》を持つユニットが減らす制圧ゲージは、手札に加わらず、かわりにトラッシュに置かれます。", "《ゲージバーン》を持つユニットが減らす制圧ゲージは、手札に加わる代わりに自分のゲージエリアに戻されます。"],
+                correct: 2,
+                explanation: "《ゲージバーン》は制圧ゲージが手札に加わらず、かわりにトラッシュに置かれる効果です。"
+            },
+            {
+                question: "《レイキ回復X》とはどんな効果ですか？",
+                options: ["自分のレイキデッキの上からX枚レイキエリアに置く効果。", "自分のレスト状態のレイキをXで指定された枚数アクティブにする効果。", "自分のトラッシュにあるレイキカードをX枚手札に戻す効果。", "相手のレイキをX枚レスト状態にする効果。"],
+                correct: 1,
+                explanation: "《レイキ回復X》は、自分のレスト状態のレイキをX枚アクティブにする効果です。"
+            },
+            {
+                question: "《レイキ追加X》とはどんな効果ですか？",
+                options: ["自分の手札からX枚レイキエリアに置く効果。", "自分のトラッシュからX枚レイキエリアに置く効果。", "自分のレイキデッキの上からXで指定された枚数レイキエリアに置く効果。", "相手のレイキデッキからX枚レイキエリアに置く効果。"],
+                correct: 2,
+                explanation: "《レイキ追加X》は、自分のレイキデッキの上からX枚レイキエリアに置く効果です。"
+            },
+            {
+                question: "《Xドロー》とはどんな効果ですか？",
+                options: ["相手のデッキからX枚カードを引く効果", "自分のデッキからXで指定された枚数カードを引く効果", "トラッシュからX枚カードを手札に戻す効果", "自分の手札をX枚捨てる効果"],
+                correct: 1,
+                explanation: "《Xドロー》は自分のデッキからX枚カードを引く効果です。"
+            },
+            // Character Questions
+            {
+                question: "メテオラスにいるエルフの長老の名前は何ですか？",
+                options: ["ズモギン", "ズギモン", "いずもん", "ズモリン"],
+                correct: 0,
+                explanation: "エルフの長老の名前は「ズモギン」です。"
+            },
+            {
+                question: "アクアペンギンの族長の名前は何ですか？",
+                options: ["ニヴェルト", "ニベルト", "ニヴァルト", "ニベルド"],
+                correct: 0,
+                explanation: "アクアペンギンの族長の名前は「ニヴェルト」です。"
+            },
+            {
+                question: "海賊の頭領の名前は何ですか？",
+                options: ["スイゲツ", "スイガツ", "スイケツ", "スイセツ"],
+                correct: 0,
+                explanation: "海賊の頭領の名前は「スイゲツ」です。"
+            },
+            {
+                question: "セイドウの幹部で次元を超越する能力を持つのは誰ですか？",
+                options: ["テンシュ", "テンシン", "テンショウ", "テンシ"],
+                correct: 0,
+                explanation: "セイドウの幹部で次元を超越する能力を持つのは「テンシュ」です。"
+            },
+            {
+                question: "竜人のリーダーの名前は何ですか？",
+                options: ["ミバツ", "ミハツ", "ミバス", "ミハス"],
+                correct: 0,
+                explanation: "竜人のリーダーの名前は「ミバツ」です。"
+            },
+            {
+                question: "オーガ族の王の名前は何ですか？",
+                options: ["オウドン", "オウトン", "オウロン", "オウソン"],
+                correct: 0,
+                explanation: "オーガ族の王の名前は「オウドン」です。"
+            },
+            // Card Rarity and Values
+            {
+                question: "CNPトレカ第1弾のパラレルカードは全何種類存在しますか？",
+                options: ["15種類", "24種類", "36種類", "48種類"],
+                correct: 2,
+                explanation: "CNPトレカ第1弾のパラレルカードは全36種類存在します。"
+            },
+            {
+                question: "CNPトレカ第1弾のパラレルカードの封入率は、約何ボックスに1枚とされていますか？",
+                options: ["5ボックスに1枚", "10ボックスに1枚", "20ボックスに1枚", "30ボックスに1枚"],
+                correct: 1,
+                explanation: "パラレルカードの封入率は約10ボックスに1枚とされています。"
+            },
+            {
+                question: "CNPトレカのNFT技術を活用した画期的な仕組みの一つで、カードの生涯で3回まで再発行が可能なシステムは何と呼ばれていますか？",
+                options: ["リロードシステム", "リフレッシュシステム", "リカバーシステム", "リカードシステム"],
+                correct: 3,
+                explanation: "カードの再発行システムは「リカードシステム」と呼ばれています。"
+            },
+            // Advanced Game Mechanics
+            {
+                question: "デッキの残り枚数が0枚になってしまいました。これ以上カードは引けませんか？",
+                options: ["いいえ、デッキが0枚になったら引けません。", "いいえ、デッキがなくてもカードを引くことができます。自分のデッキからドローするかわりに、自分のゲージエリアから1枚選び、ドローして手札に加えます。", "はい、ただしトラッシュから引くことができます。", "いいえ、ただしレイキデッキから引くことができます。"],
+                correct: 1,
+                explanation: "デッキが0枚の場合、ゲージエリアから1枚選んでドローして手札に加えます。"
+            },
+            {
+                question: "カードの効果がルールと矛盾した場合、どちらが優先されますか？",
+                options: ["ルールが優先されます。", "カードの効果が優先されます。", "プレイヤーが任意で決定します。", "ターンプレイヤーの判断が優先されます。"],
+                correct: 1,
+                explanation: "カードの効果はルールに優先します。"
+            },
+            {
+                question: "お互いのトラッシュエリアのカードの内容はいつでも確認することはできますか？",
+                options: ["いいえ、できません。", "はい、自分のトラッシュのみ確認できます。", "はい、相手の許可があれば確認できます。", "はい、できます。"],
+                correct: 3,
+                explanation: "お互いのトラッシュエリアのカードはいつでも確認できます。"
+            },
+            {
+                question: "カードに書かれている効果は、必ず発揮しなくてはなりませんか？",
+                options: ["いいえ、いつでも任意で選べます。", "はい、可能な限り発揮します。ただし、効果のテキストが「～できる。」となっているものは、発揮するかどうかを任意に選ぶことができます。", "はい、ただしレイキが足りない場合は発揮できません。", "特定のカードのみ発揮が強制されます。"],
+                correct: 1,
+                explanation: "「～できる。」と書かれた効果は任意、それ以外は強制発揮となります。"
+            }
+        ];
+
+        // Quiz State
+        let currentQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let isAnswered = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            generateQuizQuestions();
+        });
+
+        function generateQuizQuestions() {
+            // Shuffle and select 10 questions
+            const shuffled = [...quizQuestions].sort(() => Math.random() - 0.5);
+            currentQuestions = shuffled.slice(0, 10);
+            
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('startScreen').style.display = 'block';
+                document.getElementById('startScreen').classList.add('fade-in');
+            }, 1500);
+        }
+
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            isAnswered = false;
+            showQuestion();
+            updateProgress();
+        }
+
+        function showQuestion() {
+            const question = currentQuestions[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `問題 ${currentQuestion + 1}`;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionCounter').textContent = `${currentQuestion + 1} / ${currentQuestions.length}`;
+
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.innerHTML = `
+                    <div class="option-content">
+                        <i data-lucide="check-circle" class="option-icon"></i>
+                        <span>${option}</span>
+                    </div>
+                `;
+                button.onclick = () => selectOption(index);
+                optionsGrid.appendChild(button);
+            });
+
+            // Show selected answer if exists
+            if (answers[currentQuestion] !== undefined) {
+                const buttons = optionsGrid.querySelectorAll('.option-button');
+                buttons[answers[currentQuestion]].classList.add('selected');
+                document.getElementById('nextBtn').disabled = false;
+                showAnswerResult();
+            } else {
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('explanation').style.display = 'none';
+                isAnswered = false;
+            }
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            
+            // Animate question card
+            const questionCard = document.getElementById('questionCard');
+            questionCard.classList.remove('visible');
+            setTimeout(() => {
+                questionCard.classList.add('visible');
+                lucide.createIcons(); // Re-initialize icons
+            }, 100);
+
+            // Update next button text
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = currentQuestion === currentQuestions.length - 1 
+                ? '結果を見る <i data-lucide="trophy"></i>' 
+                : '次の問題 <i data-lucide="chevron-right"></i>';
+            
+            lucide.createIcons();
+        }
+
+        function selectOption(selectedIndex) {
+            if (isAnswered) return;
+
+            const buttons = document.querySelectorAll('.option-button');
+            const question = currentQuestions[currentQuestion];
+            
+            // Remove previous selection
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            
+            // Add selection to clicked button
+            buttons[selectedIndex].classList.add('selected');
+            
+            // Store answer
+            answers[currentQuestion] = selectedIndex;
+            isAnswered = true;
+            
+            // Show result after a short delay
+            setTimeout(() => {
+                showAnswerResult();
+                document.getElementById('nextBtn').disabled = false;
+            }, 300);
+        }
+
+        function showAnswerResult() {
+            const question = currentQuestions[currentQuestion];
+            const buttons = document.querySelectorAll('.option-button');
+            
+            buttons.forEach((button, index) => {
+                button.disabled = true;
+                
+                if (index === question.correct) {
+                    button.classList.add('correct');
+                } else if (index === answers[currentQuestion] && index !== question.correct) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            // Show explanation
+            document.getElementById('explanationText').textContent = question.explanation;
+            const explanation = document.getElementById('explanation');
+            explanation.style.display = 'block';
+            setTimeout(() => {
+                explanation.classList.add('visible');
+            }, 100);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < currentQuestions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+                updateProgress();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+
+            // Update stats
+            const answeredCount = answers.filter(a => a !== undefined).length;
+            const correctAnswered = answers.filter((answer, index) => {
+                return answer !== undefined && answer === currentQuestions[index].correct;
+            }).length;
+
+            document.getElementById('correctCount').textContent = `正解: ${correctAnswered}`;
+            
+            const accuracy = answeredCount > 0 ? Math.round((correctAnswered / answeredCount) * 100) : 0;
+            document.getElementById('accuracyRate').textContent = `正解率: ${accuracy}%`;
+        }
+
+        function showResults() {
+            // Calculate final score
+            score = answers.filter((answer, index) => {
+                return answer === currentQuestions[index].correct;
+            }).length;
+
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('visible');
+            
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            document.getElementById('finalScore').textContent = `${score} / ${currentQuestions.length} 問正解 (${percentage}%)`;
+
+            let message = '';
+            if (percentage === 100) {
+                message = '🎉 完璧！あなたはCNPトレカの真の達人です！全問正解は素晴らしい偉業です。';
+            } else if (percentage >= 90) {
+                message = '🏆 素晴らしい！CNPトレカの知識は非常に豊富ですね。ほぼ完璧な成績です。';
+            } else if (percentage >= 80) {
+                message = '⭐ 優秀！CNPトレカについてよく理解されています。この調子で頑張りましょう。';
+            } else if (percentage >= 70) {
+                message = '👍 良い成績です！基本的な知識はしっかりと身についています。';
+            } else if (percentage >= 60) {
+                message = '📚 まずまずの成績です。もう少し勉強すれば更に上達できそうです。';
+            } else if (percentage >= 50) {
+                message = '💪 基礎は理解されています。CNPトレカの世界をもっと探求してみてください。';
+            } else {
+                message = '🌟 CNPトレカの世界はまだまだ奥が深いですね。これから楽しく学んでいきましょう。';
+            }
+            
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            // Generate new questions
+            generateQuizQuestions();
+            document.getElementById('resultScreen').classList.remove('visible');
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'flex';
+            
+            // Reset explanation visibility
+            document.getElementById('explanation').classList.remove('visible');
+        }
+
+        // Window resize handler
+        function onWindowResize() {
+            if (renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        window.addEventListener('resize', onWindowResize);
+
+        // Disable Three.js on mobile
+        if (window.innerWidth <= 768) {
+            document.body.style.background = 'linear-gradient(135deg, #000000 0%, #111111 100%)';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNP TCG クイズ管理画面</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #050505;
+            --dark-gray: #111111;
+            --medium-gray: #1a1a1a;
+            --light-gray: #333333;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--dark-gray) 100%);
+            color: var(--text-white);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .status-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--glow-blue);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-white);
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--text-white);
+        }
+
+        .file-size {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .log-output {
+            background: var(--secondary-black);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .server-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .server-running {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .server-stopped {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-link {
+            display: block;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-white);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .quick-link-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--accent-blue);
+            margin: 0 auto 1rem;
+        }
+
+        .quick-link-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-link-desc {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">CNP TCG クイズ管理画面</h1>
+            <div id="serverStatus" class="server-status server-stopped">
+                <i data-lucide="circle"></i>
+                サーバー停止中
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <i data-lucide="bar-chart-3"></i>
+                サイト統計
+            </h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-number">3</div>
+                    <div class="status-label">ページ数</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number">40+</div>
+                    <div class="status-label">クイズ問題数</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number">6</div>
+                    <div class="status-label">NOTE記事</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number">100%</div>
+                    <div class="status-label">モバイル対応</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <i data-lucide="server"></i>
+                サーバー制御
+            </h2>
+            <button class="btn" onclick="startServer()">
+                <i data-lucide="play"></i>
+                ローカルサーバー起動
+            </button>
+            <button class="btn btn-secondary" onclick="stopServer()">
+                <i data-lucide="square"></i>
+                サーバー停止
+            </button>
+            <button class="btn btn-secondary" onclick="openSite()">
+                <i data-lucide="external-link"></i>
+                サイトを開く
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>
+                <i data-lucide="link"></i>
+                クイックリンク
+            </h2>
+            <div class="quick-links">
+                <a href="index.html" class="quick-link" target="_blank">
+                    <i data-lucide="home" class="quick-link-icon"></i>
+                    <div class="quick-link-title">メインページ</div>
+                    <div class="quick-link-desc">CNP TCG Fansite トップ</div>
+                </a>
+                <a href="quiz.html" class="quick-link" target="_blank">
+                    <i data-lucide="brain" class="quick-link-icon"></i>
+                    <div class="quick-link-title">クイズページ</div>
+                    <div class="quick-link-desc">知識の試練</div>
+                </a>
+                <a href="player-info.html" class="quick-link" target="_blank">
+                    <i data-lucide="users" class="quick-link-icon"></i>
+                    <div class="quick-link-title">プレイヤー情報</div>
+                    <div class="quick-link-desc">NOTE記事集</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <i data-lucide="files"></i>
+                ファイル一覧
+            </h2>
+            <ul class="file-list" id="fileList">
+                <li class="file-item">
+                    <div>
+                        <div class="file-name">index.html</div>
+                        <div class="file-size">メインページ</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-secondary" onclick="openFile('index.html')">
+                            <i data-lucide="external-link"></i>
+                            開く
+                        </button>
+                    </div>
+                </li>
+                <li class="file-item">
+                    <div>
+                        <div class="file-name">quiz.html</div>
+                        <div class="file-size">クイズページ</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-secondary" onclick="openFile('quiz.html')">
+                            <i data-lucide="external-link"></i>
+                            開く
+                        </button>
+                    </div>
+                </li>
+                <li class="file-item">
+                    <div>
+                        <div class="file-name">player-info.html</div>
+                        <div class="file-size">プレイヤー情報ページ</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-secondary" onclick="openFile('player-info.html')">
+                            <i data-lucide="external-link"></i>
+                            開く
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>
+                <i data-lucide="terminal"></i>
+                ログ出力
+            </h2>
+            <div class="log-output" id="logOutput">
+                [システム] 管理画面を読み込みました<br>
+                [情報] CNP TCG Fansiteの管理画面です<br>
+                [準備完了] サーバーを起動してサイトをご確認ください<br>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let serverProcess = null;
+        let serverRunning = false;
+
+        function updateServerStatus(running) {
+            const statusElement = document.getElementById('serverStatus');
+            if (running) {
+                statusElement.className = 'server-status server-running';
+                statusElement.innerHTML = '<i data-lucide="circle"></i> サーバー起動中 (Port 8080)';
+            } else {
+                statusElement.className = 'server-status server-stopped';
+                statusElement.innerHTML = '<i data-lucide="circle"></i> サーバー停止中';
+            }
+            lucide.createIcons();
+        }
+
+        function addLog(message, type = 'info') {
+            const logOutput = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = `[${timestamp}] [${type.toUpperCase()}] ${message}<br>`;
+            logOutput.innerHTML += logLine;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        function startServer() {
+            if (serverRunning) {
+                addLog('サーバーは既に起動中です', 'warning');
+                return;
+            }
+
+            addLog('ローカルサーバーを起動中...', 'info');
+            
+            // シミュレーション: 実際のサーバー起動
+            setTimeout(() => {
+                serverRunning = true;
+                updateServerStatus(true);
+                addLog('✅ サーバーが起動しました (http://localhost:8080)', 'success');
+                addLog('💡 「サイトを開く」ボタンでアクセスできます', 'info');
+                
+                // 実際にサーバーを起動するコマンド（手動実行が必要）
+                addLog('⚠️  実際のサーバー起動は手動で行ってください:', 'warning');
+                addLog('   1. ターミナルを開く', 'info');
+                addLog(`   2. cd "C:\\Users\\yokoo\\Documents\\500_WorkSpace\\20250804_CNPTCGFansite\\cnptcg_fansite_001"`, 'info');
+                addLog('   3. python -m http.server 8080', 'info');
+            }, 1000);
+        }
+
+        function stopServer() {
+            if (!serverRunning) {
+                addLog('サーバーは起動していません', 'warning');
+                return;
+            }
+
+            serverRunning = false;
+            updateServerStatus(false);
+            addLog('🛑 サーバーを停止しました', 'info');
+        }
+
+        function openSite() {
+            if (!serverRunning) {
+                addLog('⚠️  サーバーが起動していません。先にサーバーを起動してください。', 'warning');
+                return;
+            }
+            
+            window.open('http://localhost:8080', '_blank');
+            addLog('🌐 サイトを新しいタブで開きました', 'info');
+        }
+
+        function openFile(filename) {
+            window.open(filename, '_blank');
+            addLog(`📄 ${filename} を開きました`, 'info');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('🚀 CNP TCG クイズ管理画面が準備完了しました', 'success');
+            addLog('💫 美しいグラスモーフィズムデザインのクイズサイトです', 'info');
+            addLog('🎮 40問以上のクイズが実装されています', 'info');
+            addLog('📱 完全レスポンシブ対応済みです', 'info');
+        });
+    </script>
+</body>
+</html>
